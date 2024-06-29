@@ -18,7 +18,7 @@ namespace ControleAcesso.Infrastructure.Data
         public DbSet<AcesseRequest> AcesseRequests { get; set; }
         public DbSet<AcesseRequestDetail> AcesseRequestDetails { get; set; }
         public DbSet<PriorApproval> PriorApprovals { get; set; }
-        public DbSet<Status> Statuses { get; set; }
+        public DbSet<StatusRequest> StatusRequests { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -169,7 +169,7 @@ namespace ControleAcesso.Infrastructure.Data
 
                 entity.HasOne(ard => ard.Status)
                       .WithMany(s => s.AcesseRequestDetails)
-                      .HasForeignKey(ard => ard.StatusId);
+                      .HasForeignKey(ard => ard.StatusRequestId);
                         
 
                 entity.HasOne(ard => ard.AcesseRequest)
@@ -198,19 +198,21 @@ namespace ControleAcesso.Infrastructure.Data
                       .HasForeignKey(pa => pa.AcesseRequestDetailId);
             });
 
-            modelBuilder.Entity<Status>(entity =>
+            modelBuilder.Entity<StatusRequest>(entity =>
             {
-                entity.ToTable("status");
+                entity.ToTable("status_request");
 
                 entity.HasKey(s => s.Id);
 
                 entity.Property(s => s.Name)
                       .HasMaxLength(45);
                 entity.HasData(
-                    new Status {Id=1, Name = "Aprovado"},
-                    new Status {Id=2, Name = "Reprovado"},
-                    new Status {Id=3, Name = "Processando"},
-                    new Status {Id=4, Name = "Error" }
+                    new StatusRequest {Id=1, Name = "Aguardando Aprovação Gestor"},
+                    new StatusRequest {Id=2, Name = "Aguardando Aprovação Especialista"},
+                    new StatusRequest {Id=3, Name = "Aprovado" },
+                    new StatusRequest {Id=4, Name = "Reprovado"},
+                    new StatusRequest {Id=5, Name = "Processando"},
+                    new StatusRequest {Id=6, Name = "Error" }
                 );
             });
         }

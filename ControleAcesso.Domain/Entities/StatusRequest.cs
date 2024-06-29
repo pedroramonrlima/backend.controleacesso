@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ControleAcesso.Domain.Entities
 {
-    public class Status : IEntity
+    public class StatusRequest : IEntity
     {
         [Key]
         public int Id { get; set; }
