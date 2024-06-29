@@ -13,6 +13,7 @@ namespace ControleAcesso.Infrastructure.Data
         public DbSet<Department> Departments { get; set; }
         public DbSet<Manager> Managers { get; set; }
         public DbSet<EmployeeStatus> EmployeeStatuses { get; set; }
+        public DbSet<GroupApproval> GroupAprovall { get; set; }
         public DbSet<GroupAd> GroupAds { get; set; }
         public DbSet<AcesseRequest> AcesseRequests { get; set; }
         public DbSet<AcesseRequestDetail> AcesseRequestDetails { get; set; }
@@ -104,6 +105,21 @@ namespace ControleAcesso.Infrastructure.Data
                     new EmployeeStatus { Id = 2, Name = "Desligado" },
                     new EmployeeStatus { Id = 3, Name = "Férias" }
                 );
+            });
+
+            modelBuilder.Entity<GroupApproval>(entity =>
+            {
+                entity.ToTable("group_approvall");
+                
+                entity.HasKey(ga => ga.Id);
+
+                entity.HasOne(ga => ga.Employee)
+                      .WithMany()
+                      .HasForeignKey(ga => ga.EmployeeId);
+
+                entity.HasOne(ga => ga.GroupAd)
+                      .WithMany()
+                      .HasForeignKey(ga => ga.GroupAdId);
             });
 
             modelBuilder.Entity<GroupAd>(entity =>
