@@ -167,15 +167,14 @@ namespace ControleAcesso.Infrastructure.Data
 
                 entity.HasOne(ard => ard.ManagerApproval)
                       .WithMany()
-                      .HasForeignKey(ard => ard.ManagerApprovalId);
+                      .HasForeignKey(ard => ard.ManagerApprovalId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
 
                 entity.HasOne(ard => ard.Status)
                       .WithMany(s => s.AcesseRequestDetails)
                       .HasForeignKey(ard => ard.StatusId);
-
-                entity.HasOne(ard => ard.PriorApproval)
-                      .WithMany()
-                      .HasForeignKey(ard => ard.HasPriorApprovalId);
+                        
 
                 entity.HasOne(ard => ard.AcesseRequest)
                       .WithMany(ar => ar.AcesseRequestDetails)
