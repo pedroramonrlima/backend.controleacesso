@@ -13,6 +13,7 @@ namespace ControleAcesso.Infrastructure.Data
         public DbSet<Department> Departments { get; set; }
         public DbSet<Manager> Managers { get; set; }
         public DbSet<EmployeeStatus> EmployeeStatuses { get; set; }
+        public DbSet<GroupApproval> GroupAprovall { get; set; }
         public DbSet<GroupAd> GroupAds { get; set; }
         public DbSet<AcesseRequest> AcesseRequests { get; set; }
         public DbSet<AcesseRequestDetail> AcesseRequestDetails { get; set; }
@@ -99,11 +100,27 @@ namespace ControleAcesso.Infrastructure.Data
 
                 entity.Property(es => es.Name)
                       .HasMaxLength(45);
+
                 entity.HasData(
                     new EmployeeStatus { Id = 1, Name = "Ativo" },
                     new EmployeeStatus { Id = 2, Name = "Desligado" },
                     new EmployeeStatus { Id = 3, Name = "Férias" }
                 );
+            });
+
+            modelBuilder.Entity<GroupApproval>(entity =>
+            {
+                entity.ToTable("group_approvall");
+                
+                entity.HasKey(ga => ga.Id);
+
+                entity.HasOne(ga => ga.Employee)
+                      .WithMany()
+                      .HasForeignKey(ga => ga.EmployeeId);
+
+                entity.HasOne(ga => ga.GroupAd)
+                      .WithMany()
+                      .HasForeignKey(ga => ga.GroupAdId);
             });
 
             modelBuilder.Entity<GroupAd>(entity =>
@@ -151,24 +168,23 @@ namespace ControleAcesso.Infrastructure.Data
 
                 entity.HasOne(ard => ard.ManagerApproval)
                       .WithMany()
-                      .HasForeignKey(ard => ard.ManagerApprovalId);
+                      .HasForeignKey(ard => ard.ManagerApprovalId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
 
                 entity.HasOne(ard => ard.Status)
                       .WithMany(s => s.AcesseRequestDetails)
                       .HasForeignKey(ard => ard.StatusId);
-
-                entity.HasOne(ard => ard.PriorApproval)
-                      .WithMany()
-                      .HasForeignKey(ard => ard.HasPriorApprovalId);
+                        
 
                 entity.HasOne(ard => ard.AcesseRequest)
                       .WithMany(ar => ar.AcesseRequestDetails)
                       .HasForeignKey(ard => ard.AcesseRequestId);
                 
                 entity.HasOne(ard => ard.RequesterEmployee)
-                  .WithMany(e => e.AcesseRequestDetails)
-                  .HasForeignKey(ard => ard.RequesterEmployeeId)
-                  .OnDelete(DeleteBehavior.Restrict);
+                      .WithMany(e => e.AcesseRequestDetails)
+                      .HasForeignKey(ard => ard.RequesterEmployeeId)
+                      .OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<PriorApproval>(entity =>
@@ -176,6 +192,11 @@ namespace ControleAcesso.Infrastructure.Data
                 entity.ToTable("prior_approval");
 
                 entity.HasKey(pa => pa.Id);
+
+                entity.HasOne(pa => pa.GroupApproval)
+                      .WithMany()
+                      .HasForeignKey(pa => pa.GroupApprovalId)
+                      .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(pa => pa.AcesseRequestDetail)
                       .WithMany()
