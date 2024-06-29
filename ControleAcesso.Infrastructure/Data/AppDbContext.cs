@@ -100,6 +100,7 @@ namespace ControleAcesso.Infrastructure.Data
 
                 entity.Property(es => es.Name)
                       .HasMaxLength(45);
+
                 entity.HasData(
                     new EmployeeStatus { Id = 1, Name = "Ativo" },
                     new EmployeeStatus { Id = 2, Name = "Desligado" },
@@ -181,9 +182,9 @@ namespace ControleAcesso.Infrastructure.Data
                       .HasForeignKey(ard => ard.AcesseRequestId);
                 
                 entity.HasOne(ard => ard.RequesterEmployee)
-                  .WithMany(e => e.AcesseRequestDetails)
-                  .HasForeignKey(ard => ard.RequesterEmployeeId)
-                  .OnDelete(DeleteBehavior.Restrict);
+                      .WithMany(e => e.AcesseRequestDetails)
+                      .HasForeignKey(ard => ard.RequesterEmployeeId)
+                      .OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<PriorApproval>(entity =>
@@ -191,6 +192,11 @@ namespace ControleAcesso.Infrastructure.Data
                 entity.ToTable("prior_approval");
 
                 entity.HasKey(pa => pa.Id);
+
+                entity.HasOne(pa => pa.GroupApproval)
+                      .WithMany()
+                      .HasForeignKey(pa => pa.GroupApprovalId)
+                      .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(pa => pa.AcesseRequestDetail)
                       .WithMany()
