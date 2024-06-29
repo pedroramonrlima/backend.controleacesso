@@ -19,7 +19,6 @@ namespace ControleAcesso.Infrastructure.Data
         public DbSet<AcesseRequestDetail> AcesseRequestDetails { get; set; }
         public DbSet<PriorApproval> PriorApprovals { get; set; }
         public DbSet<Status> Statuses { get; set; }
-        public DbSet<RequestType> RequestTypes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -150,10 +149,6 @@ namespace ControleAcesso.Infrastructure.Data
                       .WithMany()
                       .HasForeignKey(ar => ar.GroupAdId);
 
-                entity.HasOne(e => e.RequestType)
-                      .WithMany()
-                      .HasForeignKey(e => e.RequestTypeId);
-
             });
 
             modelBuilder.Entity<AcesseRequestDetail>(entity =>
@@ -216,21 +211,6 @@ namespace ControleAcesso.Infrastructure.Data
                     new Status {Id=2, Name = "Reprovado"},
                     new Status {Id=3, Name = "Processando"},
                     new Status {Id=4, Name = "Error" }
-                );
-            });
-
-            modelBuilder.Entity<RequestType>(entity =>
-            {
-                entity.ToTable("request_type");
-
-                entity.HasKey(rt => rt.Id);
-
-                entity.Property(rt => rt.HasPriorApproval)
-                      .IsRequired();
-
-                entity.HasData(
-                    new RequestType { Id = 1, HasPriorApproval = true },
-                    new RequestType { Id = 2, HasPriorApproval = false }
                 );
             });
         }
