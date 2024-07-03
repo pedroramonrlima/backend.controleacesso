@@ -1,4 +1,5 @@
 ﻿using ControleAcesso.Domain.Constants;
+using ControleAcesso.Domain.Enumerations;
 using ControleAcesso.Domain.Exceptions;
 using ControleAcesso.Domain.Interfaces.Entities;
 using ControleAcesso.Domain.Interfaces.Repositories;
@@ -28,7 +29,7 @@ namespace ControleAcesso.Application.Services
             }
         }
 
-        public async Task<T> AddAsync(T entity)
+        public virtual async Task<T> AddAsync(T entity)
         {
             try
             {
@@ -52,23 +53,24 @@ namespace ControleAcesso.Application.Services
             }
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync()
+        public virtual async Task<IEnumerable<T>> GetAllAsync(NavigationLevel navigationLevel = NavigationLevel.None)
         {
             try
             {
-                return await _repository.GetAllAsync();
+                return await _repository.GetAllAsync(navigationLevel);
             }catch(Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 throw new DomainException($"{ResponseMessages.ProblemConsultDatabase}");
             }
         }
 
-        public async Task<T?> GetByIdAsync(int id)
+        public async Task<T?> GetByIdAsync(int id, NavigationLevel navigationLevel = NavigationLevel.None)
         {
 
             try
             {
-                var entity = await _repository.GetAsync(e => e.Id == id) ??
+                var entity = await _repository.GetAsync(e => e.Id == id, navigationLevel) ??
                     throw new DomainException(ResponseMessages.DataNotFound);
 
                 return entity;

@@ -14,13 +14,17 @@ var builder = WebApplication.CreateBuilder(args);
 //builder.Services.AddSingleton<ProblemDetailsFactory, CustomProblemDetailsFactory>();
 builder.Services.AddTransient<ProblemDetailsFactory, CustomProblemDetailsFactory>();
 builder.Services.AddTransient<ValidateModelStateFilter>();
+
 //Serialize
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add(new ValidateModelStateFilter());
 })
 
-    .AddNewtonsoftJson()
+    .AddNewtonsoftJson(options =>
+    {
+        options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+    })
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
@@ -44,11 +48,14 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 //Repositories My Application
 
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddScoped<IGroupRespository,GroupRepository>();
+builder.Services.AddScoped<IAcesseRequestRepository,AcesseRequestRepository>();
 
 //Service My Application
 
 builder.Services.AddScoped(typeof(IGenericService<>), typeof(GenericService<>));
 builder.Services.AddScoped<IGroupService, GroupService>();
+builder.Services.AddScoped<IAcesseRequestService, AcesseRequestService>();
 
 
 var app = builder.Build();

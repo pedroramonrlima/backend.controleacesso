@@ -1,8 +1,10 @@
-﻿using ControleAcesso.Domain.Interfaces.Entities;
+﻿using ControleAcesso.Domain.Enumerations;
+using ControleAcesso.Domain.Interfaces.Entities;
 using ControleAcesso.Domain.Interfaces.Repositories;
 using ControleAcesso.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace ControleAcesso.Infrastructure.Repositories
 {
@@ -22,10 +24,13 @@ namespace ControleAcesso.Infrastructure.Repositories
             return entity;
         }
 
-        public async Task<T> CreateAsync(T entity)
+        public async Task<T> CreateAsync(T entity, NavigationLevel navigationLevel = NavigationLevel.None)
         {
             _context.Set<T>().Add(entity);
             await _context.SaveChangesAsync();
+
+            await LoadNavigationPropertiesAsync(entity, navigationLevel);
+
             return entity;
         }
 
@@ -36,14 +41,30 @@ namespace ControleAcesso.Infrastructure.Repositories
             return entity;
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync()
+        /*public async Task<IEnumerable<T>> GetAllAsync()
         {
             return await _context.Set<T>().ToListAsync();
+        }*/
+
+        public async Task<IEnumerable<T>> GetAllAsync(NavigationLevel navigationLevel = NavigationLevel.None)
+        {
+            IQueryable<T> query = _context.Set<T>();
+            query = GetNavigationLevel(navigationLevel, query);
+            return await query.ToListAsync();
         }
 
-        public async Task<T?> GetAsync(Expression<Func<T, bool>> predicate)
+        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> predicate,NavigationLevel navigationLevel = NavigationLevel.None)
         {
-            return await _context.Set<T>().FirstOrDefaultAsync(predicate);
+            IQueryable<T> query = _context.Set<T>();
+            query = GetNavigationLevel(navigationLevel, query);
+            return await query.Where(predicate).ToListAsync();
+        }
+
+        public async Task<T?> GetAsync(Expression<Func<T, bool>> predicate, NavigationLevel navigationLevel = NavigationLevel.None)
+        {
+            IQueryable<T> query = _context.Set<T>();
+            query = GetNavigationLevel(navigationLevel, query);
+            return await query.FirstOrDefaultAsync(predicate);
         }
 
         public T Update(T entity)
@@ -58,6 +79,105 @@ namespace ControleAcesso.Infrastructure.Repositories
             _context.Set<T>().Update(entity);
             await _context.SaveChangesAsync();
             return entity;
+        }
+
+        private async Task LoadNavigationPropertiesAsync(T entity, NavigationLevel navigationLevel)
+        {
+            var entityType = _context.Model.FindEntityType(typeof(T));
+            var firstLevelNavigations = entityType.GetNavigations();
+
+            if (navigationLevel >= NavigationLevel.FirstLevel)
+            {
+                foreach (var firstLevelNavigation in firstLevelNavigations)
+                {
+                    var firstLevelEntry = _context.Entry(entity).Navigation(firstLevelNavigation.Name);
+                    await firstLevelEntry.LoadAsync();
+
+                    if (navigationLevel >= NavigationLevel.SecondLevel)
+                    {
+                        var firstLevelEntityType = firstLevelNavigation.TargetEntityType;
+                        var secondLevelNavigations = firstLevelEntityType.GetNavigations();
+
+                        foreach (var secondLevelNavigation in secondLevelNavigations)
+                        {
+                            var secondLevelEntries = firstLevelEntry.CurrentValue as IEnumerable<object>;
+                            if (secondLevelEntries != null)
+                            {
+                                foreach (var secondLevelEntry in secondLevelEntries)
+                                {
+                                    var secondLevelNav = _context.Entry(secondLevelEntry).Navigation(secondLevelNavigation.Name);
+                                    await secondLevelNav.LoadAsync();
+                                }
+                            }
+                            else
+                            {
+                                var secondLevelEntry = _context.Entry(firstLevelEntry.CurrentValue).Navigation(secondLevelNavigation.Name);
+                                await secondLevelEntry.LoadAsync();
+                            }
+
+                            if (navigationLevel >= NavigationLevel.ThirdLevel)
+                            {
+                                var secondLevelEntityType = secondLevelNavigation.TargetEntityType;
+                                var thirdLevelNavigations = secondLevelEntityType.GetNavigations();
+
+                                foreach (var thirdLevelNavigation in thirdLevelNavigations)
+                                {
+                                    var thirdLevelEntries = secondLevelEntries ?? new[] { firstLevelEntry.CurrentValue };
+                                    foreach (var thirdLevelEntry in thirdLevelEntries)
+                                    {
+                                        var thirdLevelNav = _context.Entry(thirdLevelEntry).Navigation(thirdLevelNavigation.Name);
+                                        await thirdLevelNav.LoadAsync();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        private IQueryable<T>? GetNavigationLevel(NavigationLevel navigationLevel, IQueryable<T> query)
+        {
+            if (navigationLevel >= NavigationLevel.FirstLevel)
+            {
+                var entityType = _context.Model.FindEntityType(typeof(T));
+                var firstLevelNavigations = entityType.GetNavigations();
+                foreach (var firstLevelNavigation in firstLevelNavigations)
+                {
+                    var firstLevelQuery = query.Include(firstLevelNavigation.Name);
+
+                    if (navigationLevel >= NavigationLevel.SecondLevel)
+                    {
+                        var firstLevelEntityType = firstLevelNavigation.TargetEntityType;
+                        var secondLevelNavigations = firstLevelEntityType.GetNavigations();
+
+                        foreach (var secondLevelNavigation in secondLevelNavigations)
+                        {
+                            if (secondLevelNavigation.TargetEntityType == entityType) continue; // Avoid cycles
+
+                            var secondLevelQuery = firstLevelQuery.Include($"{firstLevelNavigation.Name}.{secondLevelNavigation.Name}");
+
+                            if (navigationLevel >= NavigationLevel.ThirdLevel)
+                            {
+                                var secondLevelEntityType = secondLevelNavigation.TargetEntityType;
+                                var thirdLevelNavigations = secondLevelEntityType.GetNavigations();
+
+                                foreach (var thirdLevelNavigation in thirdLevelNavigations)
+                                {
+                                    if (thirdLevelNavigation.TargetEntityType == firstLevelEntityType || thirdLevelNavigation.TargetEntityType == entityType) continue; // Avoid cycles
+
+                                    secondLevelQuery = secondLevelQuery.Include($"{firstLevelNavigation.Name}.{secondLevelNavigation.Name}.{thirdLevelNavigation.Name}");
+                                }
+                            }
+
+                            firstLevelQuery = secondLevelQuery;
+                        }
+                    }
+
+                    query = firstLevelQuery;
+                }
+            }
+            return query;
+
         }
     }
 }

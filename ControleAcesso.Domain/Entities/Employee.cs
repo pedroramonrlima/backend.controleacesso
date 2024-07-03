@@ -35,7 +35,7 @@ namespace ControleAcesso.Domain.Entities
         [ForeignKey("EmployeeStatusId")]
         public virtual EmployeeStatus EmployeeStatus { get; set; }
 
-        public virtual ICollection<AcesseRequest> AcesseRequests { get; set; }
-        public virtual ICollection<AcesseRequestDetail> AcesseRequestDetails { get; set; }
+        //public virtual ICollection<AcesseRequest> AcesseRequests { get; set; }
+        //public virtual ICollection<AcesseRequestDetail> AcesseRequestDetails { get; set; }
     }
 }

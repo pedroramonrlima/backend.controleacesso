@@ -1,18 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using ControleAcesso.Domain.Enumerations;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace ControleAcesso.Domain.Interfaces.Repositories
 {
     public interface IGenericRepository<T>
     {
-        Task<IEnumerable<T>> GetAllAsync();
-        Task<T?> GetAsync(Expression<Func<T, bool>> predicate);
+        //Task<IEnumerable<T>> GetAllAsync();
+        Task<IEnumerable<T>> GetAllAsync(NavigationLevel navigationLevel = NavigationLevel.None);
+        Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> predicate, NavigationLevel navigationLevel = NavigationLevel.None);
+        Task<T?> GetAsync(Expression<Func<T, bool>> predicate, NavigationLevel navigationLevel = NavigationLevel.None);
         T Create(T entity);
-        Task<T> CreateAsync(T entity);
+        Task<T> CreateAsync(T entity, NavigationLevel navigationLevel = NavigationLevel.None);
         T Update(T entity);
         Task<T> UpdateAsync(T entity);
         T Delete(T entity);

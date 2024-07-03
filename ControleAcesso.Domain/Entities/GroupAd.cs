@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ControleAcesso.Domain.Entities
 {
-    [Serializable]
+   
     public class GroupAd : IEntity
     {
     
@@ -19,6 +19,7 @@ namespace ControleAcesso.Domain.Entities
         [StringLength(255)]
         public string? Dn { get; set; }
         public int? ExpiresHour { get; set; }
-        //public virtual ICollection<AcesseRequest> AcesseRequests { get; set; }
+
+        public virtual ICollection<GroupApproval> GroupApprovals { get; set; }
     }
 }

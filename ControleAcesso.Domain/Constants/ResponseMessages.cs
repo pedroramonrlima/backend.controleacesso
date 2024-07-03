@@ -21,6 +21,9 @@
         public const string ProblemDeleteDatabase = "Ocorreu um conflito ao tentar deletar o registro. Por favor, verifique se os dados estão corretos e tente novamente.";
         public const string ProblemInsertDatabase = "Ocorreu um conflito ao tentar fazer o cadastro do registro. Por favor, verifique se os dados estão corretos e tente novamente.";
 
+        //Validation AcesseRequest
+        public const string AcesseRequestIsExists = "Já existe uma Requisição de acesso sobre o numero {0} para o item ({1}) com o status {2}";
+
 
 
         public static string MaxCharacters(int value)

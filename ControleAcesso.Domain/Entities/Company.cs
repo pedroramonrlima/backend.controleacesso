@@ -11,6 +11,6 @@ namespace ControleAcesso.Domain.Entities
         [StringLength(45)]
         public string Name { get; set; }
 
-        public virtual ICollection<Employee> Employees { get; set; }
+        //public virtual ICollection<Employee> Employees { get; set; }
     }
 }
