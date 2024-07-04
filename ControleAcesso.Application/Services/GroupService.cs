@@ -1,16 +1,18 @@
 ﻿using ControleAcesso.Domain.Entities;
 using ControleAcesso.Domain.Interfaces.Services;
 using ControleAcesso.Domain.Interfaces.Repositories;
-using System.ComponentModel.DataAnnotations;
 using ControleAcesso.Domain.Exceptions;
+using ControleAcesso.Domain.Enumerations;
 
 
 namespace ControleAcesso.Application.Services
 {
     public class GroupService : GenericService<GroupAd>, IGroupService
     {
-        public GroupService(IGenericRepository<GroupAd> repository) : base(repository)
+        private readonly IGroupRespository _groupRepository;
+        public GroupService(IGenericRepository<GroupAd> repository, IGroupRespository groupRepository) : base(repository)
         {
+            _groupRepository = groupRepository;
         }
 
         public override GroupAd Add(GroupAd entity)
@@ -22,6 +24,11 @@ namespace ControleAcesso.Application.Services
                 throw new GroupValidateException("Erro de validação do Grupo, verifique se foi preenchido corretamente",validationErrors);
             }
             return base.Add(entity);
+        }
+
+        public override async Task<IEnumerable<GroupAd>> GetAllAsync(NavigationLevel navigationLevel = NavigationLevel.None)
+        {
+            return await _groupRepository.GetAllGroupAdAsync();
         }
 
         public async override Task<GroupAd> UpdateAsync(GroupAd entity)

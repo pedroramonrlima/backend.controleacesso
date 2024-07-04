@@ -18,8 +18,7 @@ namespace ControleAcesso.Infrastructure.Data
         public DbSet<AcesseRequest> AcesseRequests { get; set; }
         public DbSet<AcesseRequestDetail> AcesseRequestDetails { get; set; }
         public DbSet<PriorApproval> PriorApprovals { get; set; }
-        public DbSet<Status> Statuses { get; set; }
-        public DbSet<RequestType> RequestTypes { get; set; }
+        public DbSet<StatusRequest> StatusRequests { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -45,7 +44,7 @@ namespace ControleAcesso.Infrastructure.Data
                       .HasColumnType("date");
 
                 entity.HasOne(e => e.Office)
-                      .WithMany(o => o.Employees)
+                      .WithMany(/*o => o.Employees*/)
                       .HasForeignKey(e => e.OfficeId);
 
                 entity.HasOne(e => e.Department)
@@ -119,7 +118,7 @@ namespace ControleAcesso.Infrastructure.Data
                       .HasForeignKey(ga => ga.EmployeeId);
 
                 entity.HasOne(ga => ga.GroupAd)
-                      .WithMany()
+                      .WithMany(ga => ga.GroupApprovals)
                       .HasForeignKey(ga => ga.GroupAdId);
             });
 
@@ -134,6 +133,10 @@ namespace ControleAcesso.Infrastructure.Data
 
                 entity.Property(ga => ga.Dn)
                       .HasMaxLength(255);
+
+                //entity.HasOne(ga => ga.GroupApproval)
+                     // .WithOne(ga => ga.GroupAd)
+                     // .HasForeignKey<GroupApproval>(ga => ga.GroupAdId);
             });
 
             modelBuilder.Entity<AcesseRequest>(entity =>
@@ -143,16 +146,12 @@ namespace ControleAcesso.Infrastructure.Data
                 entity.HasKey(ar => ar.Id);
 
                 entity.HasOne(ar => ar.Employee)
-                      .WithMany(e => e.AcesseRequests)
+                      .WithMany(/*e => e.AcesseRequests*/)
                       .HasForeignKey(ar => ar.EmployeeId);
 
                 entity.HasOne(ar => ar.GroupAd)
                       .WithMany()
                       .HasForeignKey(ar => ar.GroupAdId);
-
-                entity.HasOne(e => e.RequestType)
-                      .WithMany()
-                      .HasForeignKey(e => e.RequestTypeId);
 
             });
 
@@ -163,7 +162,7 @@ namespace ControleAcesso.Infrastructure.Data
                 entity.HasKey(ard => ard.Id);
 
                 entity.HasOne(ard => ard.RequesterEmployee)
-                      .WithMany(e => e.AcesseRequestDetails)
+                      .WithMany(/*e => e.AcesseRequestDetails*/)
                       .HasForeignKey(ard => ard.RequesterEmployeeId);
 
                 entity.HasOne(ard => ard.ManagerApproval)
@@ -174,7 +173,7 @@ namespace ControleAcesso.Infrastructure.Data
 
                 entity.HasOne(ard => ard.Status)
                       .WithMany(s => s.AcesseRequestDetails)
-                      .HasForeignKey(ard => ard.StatusId);
+                      .HasForeignKey(ard => ard.StatusRequestId);
                         
 
                 entity.HasOne(ard => ard.AcesseRequest)
@@ -182,7 +181,7 @@ namespace ControleAcesso.Infrastructure.Data
                       .HasForeignKey(ard => ard.AcesseRequestId);
                 
                 entity.HasOne(ard => ard.RequesterEmployee)
-                      .WithMany(e => e.AcesseRequestDetails)
+                      .WithMany(/*e => e.AcesseRequestDetails*/)
                       .HasForeignKey(ard => ard.RequesterEmployeeId)
                       .OnDelete(DeleteBehavior.Restrict);
             });
@@ -203,34 +202,21 @@ namespace ControleAcesso.Infrastructure.Data
                       .HasForeignKey(pa => pa.AcesseRequestDetailId);
             });
 
-            modelBuilder.Entity<Status>(entity =>
+            modelBuilder.Entity<StatusRequest>(entity =>
             {
-                entity.ToTable("status");
+                entity.ToTable("status_request");
 
                 entity.HasKey(s => s.Id);
 
                 entity.Property(s => s.Name)
                       .HasMaxLength(45);
                 entity.HasData(
-                    new Status {Id=1, Name = "Aprovado"},
-                    new Status {Id=2, Name = "Reprovado"},
-                    new Status {Id=3, Name = "Processando"},
-                    new Status {Id=4, Name = "Error" }
-                );
-            });
-
-            modelBuilder.Entity<RequestType>(entity =>
-            {
-                entity.ToTable("request_type");
-
-                entity.HasKey(rt => rt.Id);
-
-                entity.Property(rt => rt.HasPriorApproval)
-                      .IsRequired();
-
-                entity.HasData(
-                    new RequestType { Id = 1, HasPriorApproval = true },
-                    new RequestType { Id = 2, HasPriorApproval = false }
+                    new StatusRequest {Id=1, Name = "Aguardando Aprovação Gestor"},
+                    new StatusRequest {Id=2, Name = "Aguardando Aprovação Especialista"},
+                    new StatusRequest {Id=3, Name = "Aprovado" },
+                    new StatusRequest {Id=4, Name = "Reprovado"},
+                    new StatusRequest {Id=5, Name = "Processando"},
+                    new StatusRequest {Id=6, Name = "Error" }
                 );
             });
         }

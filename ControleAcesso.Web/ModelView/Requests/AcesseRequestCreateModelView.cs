@@ -14,16 +14,12 @@ namespace ControleAcesso.Web.ModelView.Requests
         [Required(ErrorMessage = ResponseMessages.RequiredField)]
         [RegularExpression(@"^\d+$", ErrorMessage = ResponseMessages.OnlyNumbersAllowed)]
         public string GroupAdId { get; set; } = string.Empty;
-        [Required(ErrorMessage = ResponseMessages.RequiredField)]
-        [RegularExpression(@"^\d+$", ErrorMessage = ResponseMessages.OnlyNumbersAllowed)]
-        public string RequestTypeId { get; set; } = string.Empty;
         public AcesseRequest ToEntity()
         {
             return new AcesseRequest
             {
                 EmployeeId = int.Parse(EmployeeId),
-                GroupAdId = int.Parse(GroupAdId),
-                RequestTypeId = int.Parse(RequestTypeId)
+                GroupAdId = int.Parse(GroupAdId)
             };
         }
     }

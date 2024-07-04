@@ -11,7 +11,7 @@ namespace ControleAcesso.Domain.Entities
 
         public int RequesterEmployeeId { get; set; }
         public int ManagerApprovalId { get; set; }
-        public int StatusId { get; set; }
+        public int StatusRequestId { get; set; }
         public int AcesseRequestId { get; set; }
 
         [ForeignKey("RequesterEmployeeId")]
@@ -20,8 +20,8 @@ namespace ControleAcesso.Domain.Entities
         [ForeignKey("ManagerApprovalId")]
         public virtual Manager ManagerApproval { get; set; }
 
-        [ForeignKey("StatusId")]
-        public virtual Status Status { get; set; }
+        [ForeignKey("StatusRequestId")]
+        public virtual StatusRequest Status { get; set; }
 
         [ForeignKey("AcesseRequestId")]
         public virtual AcesseRequest AcesseRequest { get; set; }

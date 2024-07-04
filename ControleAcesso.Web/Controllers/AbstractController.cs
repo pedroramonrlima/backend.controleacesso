@@ -15,7 +15,7 @@ namespace ControleAcesso.Web.Controllers
         where TCreateModelView : IObjectModelView<T>
         where TUpdateModelView : IObjectModelView<T>
     {
-        private readonly IGenericService<T> _service;
+        protected readonly IGenericService<T> _service;
 
         public AbstractController(IGenericService<T> service)
         {
@@ -49,7 +49,7 @@ namespace ControleAcesso.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<T>> Post(TCreateModelView model)
+        public virtual async Task<ActionResult<T>> Post(TCreateModelView model)
         {
             try
             {
@@ -110,7 +110,7 @@ namespace ControleAcesso.Web.Controllers
             };
         }
 
-        protected ActionResult<T> HandleError(DomainException ex, int code, string erroMenssage)
+        protected virtual ActionResult<T> HandleError(DomainException ex, int code, string erroMenssage)
         {
             var errorResponse = new
             {
