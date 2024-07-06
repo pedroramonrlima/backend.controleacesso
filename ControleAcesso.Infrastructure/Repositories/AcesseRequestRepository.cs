@@ -1,6 +1,5 @@
 ﻿using ControleAcesso.Domain.Entities;
 using ControleAcesso.Domain.Enumerations;
-using ControleAcesso.Domain.Interfaces.Entities;
 using ControleAcesso.Domain.Interfaces.Repositories;
 using ControleAcesso.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;

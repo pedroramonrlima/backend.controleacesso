@@ -14,12 +14,15 @@ namespace ControleAcesso.Web.ModelView.Requests
         [Required(ErrorMessage = ResponseMessages.RequiredField)]
         [RegularExpression(@"^\d+$", ErrorMessage = ResponseMessages.OnlyNumbersAllowed)]
         public string GroupAdId { get; set; } = string.Empty;
+        public bool HasPriorApproval { get; set; } = false;
+
         public AcesseRequest ToEntity()
         {
             return new AcesseRequest
             {
                 EmployeeId = int.Parse(EmployeeId),
-                GroupAdId = int.Parse(GroupAdId)
+                GroupAdId = int.Parse(GroupAdId),
+                HasPriorApproval = HasPriorApproval,
             };
         }
     }

@@ -7,5 +7,7 @@ namespace ControleAcesso.Domain.Interfaces.Services
         AcesseRequest Add(AcesseRequest entity);
 
         Task<AcesseRequest> AddAsync(AcesseRequest entity);
+
+        Task<AcesseRequest> UpdateAsync(AcesseRequest entity);
     }
 }

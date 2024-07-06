@@ -9,11 +9,13 @@ namespace ControleAcesso.Application.Services
 {
     public class AcesseRequestService : GenericService<AcesseRequest>, IAcesseRequestService
     {
-        private Dictionary<string, List<string>> Errors = new Dictionary<string, List<string>>();
+        private Dictionary<string, List<string>> _errors = new Dictionary<string, List<string>>();
         private readonly IGenericService<Employee> _employeeService;
+        private readonly IGenericService<GroupAd> _groupService;
         private readonly IGenericRepository<AcesseRequestDetail> _acesseRequestDetailRepository;
         private readonly IAcesseRequestRepository _acesseRequestRepository;
         public AcesseRequestService(
+            IGenericService<GroupAd> groupService,
             IGenericRepository<AcesseRequestDetail> acesseRequestDetailRepository,
             IGenericService<Employee> employeeService, 
             IGenericRepository<AcesseRequest> repository, 
@@ -22,11 +24,12 @@ namespace ControleAcesso.Application.Services
             _employeeService = employeeService;
             _acesseRequestRepository = acesseRequestRepository;
             _acesseRequestDetailRepository = acesseRequestDetailRepository;
+            _groupService = groupService;
         }
 
         public override async Task<AcesseRequest> AddAsync(AcesseRequest entity)
         {
-            await Validate(entity);
+            await ValidateCreate(entity);
             
 
             AcesseRequestDetail acesseRequestDetail = new AcesseRequestDetail
@@ -40,26 +43,49 @@ namespace ControleAcesso.Application.Services
             return entity;
         }
 
-        private async Task<bool> Validate(AcesseRequest entity)
+        public override async Task<AcesseRequest> UpdateAsync(AcesseRequest entity)
+        {
+            await ValidateUpdate(entity);
+
+            return await base.UpdateAsync(entity);
+        }
+
+        private async Task ValidateUpdate(AcesseRequest entity)
+        {
+            await IsDepartamentManagerAsync(entity);
+            await IsGroupExistsAsync(entity);
+
+            if (_errors.Count() > 0)
+            {
+                throw new DomainException("Ouve um ou mais erros ao tentar processar sua solicitação", _errors);
+            }
+        }
+
+        private async Task ValidateCreate(AcesseRequest entity)
         {
             await IsDepartamentManagerAsync(entity);
             await IsRquisicaoGroupExistAsync(entity);
+            await IsGroupExistsAsync(entity);
 
-            if (Errors.Count() > 0)
+            if (_errors.Count() > 0)
             {
-                throw new DomainException("Ouve um ou mais erros ao tentar processar sua solicitação", Errors);
+                throw new DomainException("Ouve um ou mais erros ao tentar processar sua solicitação", _errors);
             }
-            return true;
         }
 
-        private async Task<bool> IsDepartamentManagerAsync(AcesseRequest entity)
+        private async Task IsDepartamentManagerAsync(AcesseRequest entity)
         {
-            var employee = await _employeeService.GetByIdAsync(entity.EmployeeId,NavigationLevel.FirstLevel);
-            if (employee.Department.ManagerId == null)
+            try
             {
-                Errors["Departament"] = ["Departamento está sem gestor associado"];
+                var employee = await _employeeService.GetByIdAsync(entity.EmployeeId, NavigationLevel.FirstLevel);
+                if (employee.Department.ManagerId == null)
+                {
+                    AddError(nameof(employee.Department), string.Format(ResponseMessages.DepartamentNotManager,employee.Department.Name));
+                }
+            }catch (DomainException ex)
+            {
+                AddError(nameof(entity.EmployeeId), ResponseMessages.DataNotFound);
             }
-            return true;
         }
 
         private async Task<bool> IsRquisicaoGroupExistAsync(AcesseRequest entity)
@@ -77,14 +103,37 @@ namespace ControleAcesso.Application.Services
                 int id = firstRequest.Id;
                 string group = firstRequest!.AcesseRequest.GroupAd.Name;
 
-                Errors["Group"] = [
-                    string.Format(
-                        ResponseMessages.AcesseRequestIsExists, id, group, status)
-                    ];
+                AddError(nameof(entity.GroupAd), string.Format(
+                        ResponseMessages.AcesseRequestIsExists, id, group, status));
             }
 
 
             return true;
+        }
+
+        private async Task IsGroupExistsAsync(AcesseRequest entity)
+        {
+            try
+            {
+                await _groupService.GetByIdAsync(entity.GroupAdId);
+            }
+            catch (DomainException ex)
+            {
+                AddError(nameof(entity.GroupAd), ResponseMessages.DataNotFound);
+            }
+        }
+
+        private void AddError(string key, string message)
+        {
+            if (!_errors.ContainsKey(key))
+            {
+                _errors[key] = [message];
+            }else
+            {
+                _errors[key].Add(message);
+            }
+
+            
         }
     }
 }

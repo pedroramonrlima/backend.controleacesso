@@ -24,7 +24,9 @@
         //Validation AcesseRequest
         public const string AcesseRequestIsExists = "Já existe uma Requisição de acesso sobre o numero {0} para o item ({1}) com o status {2}";
 
+        //Validation Service Acesse Request
 
+        public const string DepartamentNotManager = "O Departamento ({0}) que o funcionario está alocado está sem gestor associado";
 
         public static string MaxCharacters(int value)
         {
