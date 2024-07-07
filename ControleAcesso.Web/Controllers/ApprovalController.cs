@@ -22,16 +22,29 @@ namespace ControleAcesso.Web.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AcesseRequestDetail>>> GetAll()
         {
-            return Ok(await _approvalRequestDetailService.GetPedentManager(2));
+            return Ok(await _approvalRequestDetailService.GetPedentEspecialist(1002));
         }
 
-        [HttpPost]
+        /*[HttpPost]
 
         public async Task<ActionResult<AcesseRequestDetail>> post(ApprovalRequestModelView acesseRequest)
         {
             try
             {
                 return Ok(await _approvalRequestDetailService.ApproveManager(acesseRequest.ToEntity(), 1));
+            }
+            catch (DomainException ex)
+            {
+                return HandleError(ex, 400, "");
+            }
+        }*/
+
+        [HttpPost]
+        public async Task<ActionResult<AcesseRequestDetail>> ApproveEspecialistas(ApprovalRequestModelView acesseRequest)
+        {
+            try
+            {
+                return Ok(await _approvalRequestDetailService.ApproveEspecialista(acesseRequest.ToEntity(), 1002));
             }
             catch (DomainException ex)
             {

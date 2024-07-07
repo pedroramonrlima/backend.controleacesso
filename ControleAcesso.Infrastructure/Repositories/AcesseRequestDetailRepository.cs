@@ -1,5 +1,4 @@
 ﻿using ControleAcesso.Domain.Entities;
-using ControleAcesso.Domain.Enumerations;
 using ControleAcesso.Infrastructure.Data;
 using ControleAcesso.Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -18,8 +17,8 @@ namespace ControleAcesso.Infrastructure.Repositories
             {
                 try
                 {
-                    // Adiciona a AcesseRequestDetail
-                    acesseRequestDetail = await base.CreateAsync(acesseRequestDetail);
+                    // Atualiza a AcesseRequestDetail
+                    acesseRequestDetail = await base.UpdateAsync(acesseRequestDetail);
 
 
                     // Adiciona a PriorApproval
@@ -49,6 +48,20 @@ namespace ControleAcesso.Infrastructure.Repositories
                               ard.AcesseRequest.HasPriorApproval == true &&
                               ard.AcesseRequest.GroupAd.GroupApprovals.Any(ga => ga.EmployeeId == employee))
                 .ToListAsync();
+        }
+
+        public async Task<AcesseRequestDetail?> GetPendingEspecialistByIdAsync(int id, int employeeId)
+        {
+            return await _context.Set<AcesseRequestDetail>()
+                .Include(ard => ard.Status)
+                .Include(ard => ard.AcesseRequest)
+                    .ThenInclude(ar => ar.GroupAd)
+                        .ThenInclude(ga => ga.GroupApprovals)
+                .Where(ard => 
+                              ard.Id == id &&
+                              ard.AcesseRequest.HasPriorApproval == true &&
+                              ard.AcesseRequest.GroupAd.GroupApprovals.Any(ga => ga.EmployeeId == employeeId))
+                .FirstOrDefaultAsync();
         }
     }
 }

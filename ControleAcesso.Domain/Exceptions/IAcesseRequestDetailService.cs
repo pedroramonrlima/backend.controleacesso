@@ -6,7 +6,7 @@ namespace ControleAcesso.Domain.Exceptions
     {
         Task<AcesseRequestDetail> ApproveManager(AcesseRequestDetail acesseRequestDetail, int idManager);
 
-        Task<IEnumerable<AcesseRequestDetail>> ApproveEspecialista(int idManager);
+        Task<AcesseRequestDetail> ApproveEspecialista(AcesseRequestDetail acesse, int idEmployee);
         Task<IEnumerable<AcesseRequestDetail>> GetPedentManager(int idManager);
         Task<IEnumerable<AcesseRequestDetail>> GetPedentEspecialist(int employeeId);
     }
