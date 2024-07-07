@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ControleAcesso.Domain\ControleAcesso.Domain.csproj" />
+    <ProjectReference Include="..\ControleAcesso.Infrastructure\ControleAcesso.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

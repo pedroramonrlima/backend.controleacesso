@@ -3,8 +3,8 @@ using ControleAcesso.Domain.Interfaces.Entities;
 using ControleAcesso.Domain.Interfaces.Repositories;
 using ControleAcesso.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using System.Linq.Expressions;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace ControleAcesso.Infrastructure.Repositories
 {
@@ -58,6 +58,23 @@ namespace ControleAcesso.Infrastructure.Repositories
             IQueryable<T> query = _context.Set<T>();
             query = GetNavigationLevel(navigationLevel, query);
             return await query.Where(predicate).ToListAsync();
+        }
+
+        /*public async Task<IEnumerable<T>> GetAllAsync(
+            Expression<Func<T, bool>> predicate,
+             Func<IQueryable<T>, IIncludableQueryable<T, object>> include)
+        {
+            IQueryable<T> query = _context.Set<T>();
+            query = query.Where(predicate);
+            query = include(query);
+            return await query.ToListAsync();
+        }*/
+        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> predicate, Func<IQueryable<T>, IQueryable<T>> include)
+        {
+            IQueryable<T> query = _context.Set<T>();
+            query = query.Where(predicate);
+            query = include(query);
+            return await query.ToListAsync();
         }
 
         public async Task<T?> GetAsync(Expression<Func<T, bool>> predicate, NavigationLevel navigationLevel = NavigationLevel.None)

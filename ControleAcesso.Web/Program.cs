@@ -1,7 +1,9 @@
 using ControleAcesso.Application.Services;
+using ControleAcesso.Domain.Exceptions;
 using ControleAcesso.Domain.Interfaces.Repositories;
 using ControleAcesso.Domain.Interfaces.Services;
 using ControleAcesso.Infrastructure.Data;
+using ControleAcesso.Infrastructure.Interfaces;
 using ControleAcesso.Infrastructure.Repositories;
 using ControleAcesso.Web.Filter;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
@@ -49,12 +51,14 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IGroupRespository,GroupRepository>();
 builder.Services.AddScoped<IAcesseRequestRepository,AcesseRequestRepository>();
+builder.Services.AddScoped<IAcesseRequestDetailRepository, AcesseRequestDetailRepository>();
 
 //Service My Application
 
 builder.Services.AddScoped(typeof(IGenericService<>), typeof(GenericService<>));
 builder.Services.AddScoped<IGroupService, GroupService>();
 builder.Services.AddScoped<IAcesseRequestService, AcesseRequestService>();
+builder.Services.AddScoped<IAcesseRequestDetailService, AcesseRequestDetailService>();
 
 
 var app = builder.Build();
