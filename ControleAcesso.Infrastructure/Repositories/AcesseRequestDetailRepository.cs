@@ -17,9 +17,24 @@ namespace ControleAcesso.Infrastructure.Repositories
             {
                 try
                 {
-                    // Atualiza a AcesseRequestDetail
-                    acesseRequestDetail = await base.UpdateAsync(acesseRequestDetail);
+                    // Verifique o estado atual da entidade para garantir que está sendo rastreada corretamente
+                    var trackedEntity = await _context.Set<AcesseRequestDetail>()
+                        .Include(ard => ard.Status)
+                        .FirstOrDefaultAsync(ard => ard.Id == acesseRequestDetail.Id);
 
+                    if (trackedEntity != null)
+                    {
+                        // Atualize o estado da entidade rastreada
+                        trackedEntity.StatusRequestId = acesseRequestDetail.StatusRequestId;
+                        trackedEntity.Status = acesseRequestDetail.Status;
+
+                        _context.Entry(trackedEntity).State = EntityState.Modified;
+                    }
+                    else
+                    {
+                        // Caso a entidade não esteja sendo rastreada, adicione-a como nova
+                        _context.Set<AcesseRequestDetail>().Update(acesseRequestDetail);
+                    }
 
                     // Adiciona a PriorApproval
                     _context.Set<PriorApproval>().Add(priorApproval);
@@ -28,7 +43,13 @@ namespace ControleAcesso.Infrastructure.Repositories
                     // Comita a transação
                     await transaction.CommitAsync();
 
-                    return acesseRequestDetail;
+                    // Retorne a entidade com a navegação `Status` incluída
+                    return await _context.Set<AcesseRequestDetail>()
+                        .Include(ard => ard.Status)
+                        .Include(ard => ard.ManagerApproval)
+                            .ThenInclude(ard => ard.Employee)
+                        .Include(ard => ard.RequesterEmployee)
+                        .FirstOrDefaultAsync(ard => ard.Id == acesseRequestDetail.Id);
                 }
                 catch (Exception)
                 {

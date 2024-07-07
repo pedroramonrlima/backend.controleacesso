@@ -51,7 +51,7 @@ namespace ControleAcesso.Application.Services
             };
 
             acesse.StatusRequestId = (int) EStatusRequest.Aprovado;
-            acesse.Status = null;
+            //acesse.Status = null;
             return await _acesseDetailRepository.AddWithApprovalAsync(acesse, priorApproval);
         }
 

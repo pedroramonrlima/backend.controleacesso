@@ -25,7 +25,7 @@ namespace ControleAcesso.Web.Controllers
             return Ok(await _approvalRequestDetailService.GetPedentEspecialist(1002));
         }
 
-        /*[HttpPost]
+        [HttpPost("approve-manager")]
 
         public async Task<ActionResult<AcesseRequestDetail>> post(ApprovalRequestModelView acesseRequest)
         {
@@ -37,14 +37,14 @@ namespace ControleAcesso.Web.Controllers
             {
                 return HandleError(ex, 400, "");
             }
-        }*/
+        }
 
-        [HttpPost]
+        [HttpPost("approve-especialista")]
         public async Task<ActionResult<AcesseRequestDetail>> ApproveEspecialistas(ApprovalRequestModelView acesseRequest)
         {
             try
             {
-                return Ok(await _approvalRequestDetailService.ApproveEspecialista(acesseRequest.ToEntity(), 1002));
+                return Ok(await _approvalRequestDetailService.ApproveEspecialista(acesseRequest.ToEntity(), 1));
             }
             catch (DomainException ex)
             {
