@@ -1,6 +1,7 @@
 ﻿using ControleAcesso.Domain.Entities;
 using ControleAcesso.Domain.Enumerations;
 using ControleAcesso.Domain.Exceptions;
+using ControleAcesso.Domain.Interfaces.Services;
 using ControleAcesso.Infrastructure.Interfaces;
 
 namespace ControleAcesso.Application.Services
@@ -9,9 +10,11 @@ namespace ControleAcesso.Application.Services
     {
         private Dictionary<string, List<string>> _errors = new Dictionary<string, List<string>>();
         private readonly IAcesseRequestDetailRepository _acesseDetailRepository;
-        public AcesseRequestDetailService(IAcesseRequestDetailRepository acesseDetailRepository) 
+        private readonly ILdapService _ldapService;
+        public AcesseRequestDetailService(ILdapService ldapService, IAcesseRequestDetailRepository acesseDetailRepository) 
         {
             _acesseDetailRepository = acesseDetailRepository;
+            _ldapService = ldapService;
         }
         public async Task<AcesseRequestDetail> ApproveManager(AcesseRequestDetail acesseRequestDetail ,int idManager)
         {
@@ -24,35 +27,65 @@ namespace ControleAcesso.Application.Services
 
             if(!await ValidAcesseRequestEspecialist(acesseRequestDetail))
             {
-                acesseRequestDetail.StatusRequestId = 3;
-                return _acesseDetailRepository.Update(acesseRequestDetail);
+                acesseRequestDetail.StatusRequestId = (int)EStatusRequest.Processando;
+                acesseRequestDetail = await _acesseDetailRepository.UpdateAsync(acesseRequestDetail);
+                try
+                                         {
+                    _ldapService.AddUserToGroup(acesseRequestDetail.AcesseRequest.Employee.Login, acesseRequestDetail.AcesseRequest.GroupAd.Dn);
+                    acesseRequestDetail.StatusRequestId = (int)EStatusRequest.Aprovado;
+                    return await _acesseDetailRepository.UpdateAsync(acesseRequestDetail);
+                }
+                catch
+                {
+                    acesseRequestDetail.StatusRequestId = (int)EStatusRequest.Error;
+                    return await _acesseDetailRepository.UpdateAsync(acesseRequestDetail);
+
+                }
             }
             else
             {
                 acesseRequestDetail.StatusRequestId = 2;
-                return _acesseDetailRepository.Update(acesseRequestDetail);
+                return await _acesseDetailRepository.UpdateAsync(acesseRequestDetail);
 
             }
         }
 
-        public async Task<AcesseRequestDetail> ApproveEspecialista(AcesseRequestDetail acesse,int idEmployee)
+        public async Task<AcesseRequestDetail> PriorApproval(AcesseRequestDetail acesse,int idEmployee)
         {
-            acesse = await ValidApprovveEspecialist(acesse, idEmployee);
+            await ValidPriorApproval(acesse, idEmployee);
 
             if (_errors.Count > 0)
             {
                 throw new DomainException("a", _errors);
             }
+            AcesseRequestDetail requestDetail = await _acesseDetailRepository.GetPendingEspecialistByIdAsync(acesse.Id);
 
             PriorApproval priorApproval = new PriorApproval { 
-                GroupApprovalId = acesse.AcesseRequest.GroupAd.GroupApprovals.First().Id,
-                AcesseRequestDetailId = acesse.Id,
+                GroupApprovalId = requestDetail.AcesseRequest.GroupAd.GroupApprovals.First().Id,
+                AcesseRequestDetailId = requestDetail.Id,
                 HasPriorApproval = true,
             };
 
-            acesse.StatusRequestId = (int) EStatusRequest.Aprovado;
-            //acesse.Status = null;
-            return await _acesseDetailRepository.AddWithApprovalAsync(acesse, priorApproval);
+            requestDetail.StatusRequestId = (int) EStatusRequest.Processando;
+            await _acesseDetailRepository.AddWithApprovalAsync(requestDetail, priorApproval);
+
+            try
+            {
+                _ldapService.AddUserToGroup(requestDetail.AcesseRequest.Employee.Login, requestDetail.AcesseRequest.GroupAd.Dn);
+                requestDetail.StatusRequestId = (int)EStatusRequest.Aprovado;
+                
+                // Atualiza a entidade com o novo status
+                requestDetail = await _acesseDetailRepository.UpdateAsync(requestDetail);
+
+
+                return requestDetail;
+
+            }
+            catch
+            {
+                requestDetail.StatusRequestId = (int)EStatusRequest.Error;
+                return await _acesseDetailRepository.UpdateAsync(requestDetail);
+            }
         }
 
         public async Task<IEnumerable<AcesseRequestDetail>> GetPedentManager(int idManager)
@@ -97,7 +130,7 @@ namespace ControleAcesso.Application.Services
             return true;
         }
 
-        private async Task<AcesseRequestDetail?> ValidApprovveEspecialist(AcesseRequestDetail acesse, int employeeId)
+        private async Task<bool?> ValidPriorApproval(AcesseRequestDetail acesse, int employeeId)
         {
             AcesseRequestDetail? requests = await _acesseDetailRepository.GetPendingEspecialistByIdAsync(acesse.Id,employeeId);
             if ( requests == null )
@@ -108,7 +141,7 @@ namespace ControleAcesso.Application.Services
                 AddError(nameof(requests), $"Não e possivel aprovar esta requisição devida a mesma ja está com o status {requests.Status.Name}");
             }
 
-            return requests;
+            return true;
         }
 
         private void AddError(string key, string message)

@@ -1,5 +1,4 @@
 using ControleAcesso.Application.Services;
-using ControleAcesso.Domain.Exceptions;
 using ControleAcesso.Domain.Interfaces.Repositories;
 using ControleAcesso.Domain.Interfaces.Services;
 using ControleAcesso.Infrastructure.Data;
@@ -54,6 +53,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlServer(mySqlConnection, sqlServerOptions => sqlServerOptions.CommandTimeout(60));
     options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+    options.EnableSensitiveDataLogging();
 });
 
 //Configuration LDAP
@@ -75,6 +75,7 @@ builder.Services.AddScoped(typeof(IGenericService<>), typeof(GenericService<>));
 builder.Services.AddScoped<IGroupService, GroupService>();
 builder.Services.AddScoped<IAcesseRequestService, AcesseRequestService>();
 builder.Services.AddScoped<IAcesseRequestDetailService, AcesseRequestDetailService>();
+builder.Services.AddScoped<ILdapService, LdapService>();
 
 
 var app = builder.Build();

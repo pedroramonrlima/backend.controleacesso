@@ -1,7 +1,10 @@
 ﻿using ControleAcesso.Domain.Entities;
+using ControleAcesso.Domain.Enumerations;
+using ControleAcesso.Domain.Interfaces.Entities;
 using ControleAcesso.Infrastructure.Data;
 using ControleAcesso.Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace ControleAcesso.Infrastructure.Repositories
 {
@@ -49,6 +52,9 @@ namespace ControleAcesso.Infrastructure.Repositories
                         .Include(ard => ard.ManagerApproval)
                             .ThenInclude(ard => ard.Employee)
                         .Include(ard => ard.RequesterEmployee)
+                        .Include(ard => ard.AcesseRequest)
+                            .ThenInclude(ard => ard.Employee)
+                         .Include(ard=> ard.AcesseRequest.GroupAd)
                         .FirstOrDefaultAsync(ard => ard.Id == acesseRequestDetail.Id);
                 }
                 catch (Exception)
@@ -59,6 +65,52 @@ namespace ControleAcesso.Infrastructure.Repositories
                 }
             }
         }
+
+        public async Task<AcesseRequestDetail> UpdateAsync(AcesseRequestDetail acesseRequestDetail)
+        {
+            try
+            {
+                var existingEntity = await _context.Set<AcesseRequestDetail>()
+                    .FirstOrDefaultAsync(ard => ard.Id == acesseRequestDetail.Id);
+
+                if (existingEntity != null)
+                {
+                    var local = _context.Set<AcesseRequestDetail>().Local.FirstOrDefault(entry => entry.Id.Equals(acesseRequestDetail.Id));
+                    if (local != null)
+                    {
+                        // Desanexa a entidade local
+                        _context.Entry(local).State = EntityState.Detached;
+                    }
+
+                    // Atualize o estado da entidade
+                    existingEntity.StatusRequestId = acesseRequestDetail.StatusRequestId;
+                    existingEntity.Status = acesseRequestDetail.Status;
+
+                    _context.Entry(existingEntity).State = EntityState.Modified;
+                }
+                else
+                {
+                    _context.Set<AcesseRequestDetail>().Update(acesseRequestDetail);
+                }
+
+                await _context.SaveChangesAsync();
+
+                return await _context.Set<AcesseRequestDetail>()
+                        .Include(ard => ard.Status)
+                        .Include(ard => ard.ManagerApproval)
+                            .ThenInclude(ard => ard.Employee)
+                        .Include(ard => ard.RequesterEmployee)
+                        .Include(ard => ard.AcesseRequest)
+                            .ThenInclude(ard => ard.Employee)
+                        .Include(ard => ard.AcesseRequest.GroupAd)
+                        .FirstOrDefaultAsync(ard => ard.Id == acesseRequestDetail.Id);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Erro ao atualizar a entidade.", ex);
+            }
+        }
+
         public async Task<IEnumerable<AcesseRequestDetail>> GetPendingEspecialistAsync(int employee)
         {
             return await _context.Set<AcesseRequestDetail>()
@@ -82,6 +134,21 @@ namespace ControleAcesso.Infrastructure.Repositories
                               ard.Id == id &&
                               ard.AcesseRequest.HasPriorApproval == true &&
                               ard.AcesseRequest.GroupAd.GroupApprovals.Any(ga => ga.EmployeeId == employeeId))
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<AcesseRequestDetail?> GetPendingEspecialistByIdAsync(int id)
+        {
+            return await _context.Set<AcesseRequestDetail>()
+                .AsNoTracking()
+                .Include(ard => ard.Status)
+                .Include(ard => ard.AcesseRequest)
+                    .ThenInclude(ar => ar.GroupAd)
+                        .ThenInclude(ga => ga.GroupApprovals)
+                .Include(ars => ars.AcesseRequest.Employee)
+                .Where(ard =>
+                              ard.Id == id &&
+                              ard.AcesseRequest.HasPriorApproval == true)
                 .FirstOrDefaultAsync();
         }
     }

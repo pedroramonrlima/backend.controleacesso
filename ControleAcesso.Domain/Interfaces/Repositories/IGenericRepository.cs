@@ -14,7 +14,7 @@ namespace ControleAcesso.Domain.Interfaces.Repositories
         T Create(T entity);
         Task<T> CreateAsync(T entity, NavigationLevel navigationLevel = NavigationLevel.None);
         T Update(T entity);
-        Task<T> UpdateAsync(T entity);
+        Task<T> UpdateAsync(T entity, NavigationLevel navigationLevel = NavigationLevel.None);
         T Delete(T entity);
     }
 }

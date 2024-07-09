@@ -41,6 +41,7 @@ namespace ControleAcesso.Web.ModelView.Employees
 
         [Required(ErrorMessage = ResponseMessages.RequiredField)]
         public int EmployeeStatusId { get; set; }
+        public string? Login {  get; set; }
 
         public Employee ToEntity()
         {
@@ -48,6 +49,7 @@ namespace ControleAcesso.Web.ModelView.Employees
             {
                 Id = Id,
                 Cpf = this.Cpf,
+                Login = Login,
                 Registration = this.Registration,
                 Name = this.Name,
                 BomDate = this.BomDate,

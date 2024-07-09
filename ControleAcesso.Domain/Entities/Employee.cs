@@ -11,6 +11,9 @@ namespace ControleAcesso.Domain.Entities
 
         [StringLength(45)]
         public string Cpf { get; set; }
+        
+        [StringLength(45)]
+        public string? Login { get; set; }
 
         [StringLength(45)]
         public string Registration { get; set; }

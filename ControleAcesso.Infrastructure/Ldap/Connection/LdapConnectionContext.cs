@@ -16,64 +16,27 @@ namespace ControleAcesso.Infrastructure.Ldap.Connection
         }
         public LdapConnection GetLdapConnection()
         {
-
-            //string host = $"ldap://{_ldapSettings.Host}";
-
             var ldapConnection = new LdapConnection(new LdapDirectoryIdentifier(_ldapSettings.Host, _ldapSettings.Port));
-
-            // {
-
-            //     Credential = new System.Net.NetworkCredential(_ldapSettings.User, _ldapSettings.Password)
-
-            // };
-
             ldapConnection.SessionOptions.SecureSocketLayer = true;
-
             ldapConnection.SessionOptions.VerifyServerCertificate = (conn, cert) => true; // Permitir qualquer certificado
-
             ldapConnection.SessionOptions.ProtocolVersion = 3; // LDAPv3
-
             ldapConnection.SessionOptions.SecureSocketLayer = false;
-
             ldapConnection.AuthType = AuthType.Basic;
-
             NetworkCredential credential = new NetworkCredential(_ldapSettings.User, _ldapSettings.Password);
-
             ldapConnection.Bind(credential);
-
             return ldapConnection;
-
         }
-
-
 
         public LdapConnection GetLdapConnection(string userDN, string password)
         {
-
-            //string host = $"ldap://{_ldapSettings.Host}";
-
             var ldapConnection = new LdapConnection(new LdapDirectoryIdentifier(_ldapSettings.Host, _ldapSettings.Port));
-
-            // {
-
-            //     Credential = new System.Net.NetworkCredential(_ldapSettings.User, _ldapSettings.Password)
-
-            // };
-
             ldapConnection.SessionOptions.SecureSocketLayer = true;
-
             ldapConnection.SessionOptions.VerifyServerCertificate = (conn, cert) => true; // Permitir qualquer certificado
-
             ldapConnection.SessionOptions.ProtocolVersion = 3; // LDAPv3
-
             ldapConnection.SessionOptions.SecureSocketLayer = false;
-
             ldapConnection.AuthType = AuthType.Basic;
-
             NetworkCredential credential = new NetworkCredential(userDN, password);
-
             ldapConnection.Bind(credential);
-
             return ldapConnection;
 
         }

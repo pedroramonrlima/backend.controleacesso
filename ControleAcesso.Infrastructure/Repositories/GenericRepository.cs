@@ -91,10 +91,11 @@ namespace ControleAcesso.Infrastructure.Repositories
             return entity;
         }
 
-        public async Task<T> UpdateAsync(T entity)
+        public virtual async Task<T> UpdateAsync(T entity, NavigationLevel navigationLevel = NavigationLevel.None)
         {
             _context.Set<T>().Update(entity);
             await _context.SaveChangesAsync();
+            await LoadNavigationPropertiesAsync(entity, navigationLevel);
             return entity;
         }
 

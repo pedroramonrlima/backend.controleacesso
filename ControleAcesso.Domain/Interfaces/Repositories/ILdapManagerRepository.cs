@@ -9,6 +9,8 @@ namespace ControleAcesso.Domain.Interfaces.Repositories
         void AddUser(LdapUser user);
         bool SamAccountNameExists(string samAccountName);
         void UpdateUserPassword(string samAccountName, string newPassword);
-        Task<IEnumerable<LdapUser>> GetLDAPUsersAsync();
+        bool ValidUserPassowrd(string dn, string password);
+        void AddUserToGroup(LdapUser user, LdapGroup group);
+        IEnumerable<LdapGroup> GetLdapGroups();
     }
 }

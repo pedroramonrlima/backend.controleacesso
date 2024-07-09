@@ -1,6 +1,7 @@
 ﻿using ControleAcesso.Domain.Constants;
 using ControleAcesso.Domain.Entities;
 using ControleAcesso.Domain.Exceptions;
+using ControleAcesso.Domain.Interfaces.Services;
 using ControleAcesso.Web.ModelView.Requests;
 using ControleAcesso.Web.Response;
 using Microsoft.AspNetCore.Http;
@@ -44,7 +45,7 @@ namespace ControleAcesso.Web.Controllers
         {
             try
             {
-                return Ok(await _approvalRequestDetailService.ApproveEspecialista(acesseRequest.ToEntity(), 1));
+                return Ok(await _approvalRequestDetailService.PriorApproval(acesseRequest.ToEntity(), 3));
             }
             catch (DomainException ex)
             {

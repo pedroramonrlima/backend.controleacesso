@@ -1,7 +1,4 @@
-﻿
-using static System.Runtime.InteropServices.JavaScript.JSType;
-
-namespace ControleAcesso.Domain.Exceptions
+﻿namespace ControleAcesso.Domain.Exceptions
 {
     public class DomainException : Exception
     {
@@ -29,13 +26,5 @@ namespace ControleAcesso.Domain.Exceptions
         {
             Properties = errors ?? throw new ArgumentNullException(nameof(errors));
         }
-
-        /* public override string Message
-         {
-             get
-             {
-                 return string.Join(Environment.NewLine, Errors);
-             }
-         }*/
     }
 }

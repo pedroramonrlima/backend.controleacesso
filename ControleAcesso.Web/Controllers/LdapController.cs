@@ -1,6 +1,5 @@
 ﻿using ControleAcesso.Domain.Interfaces.Repositories;
 using ControleAcesso.Domain.Models.Ldap;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ControleAcesso.Web.Controllers
@@ -21,5 +20,18 @@ namespace ControleAcesso.Web.Controllers
         {
             return Ok(_ldapManagerRepository.GetLDAPUsers());
         }
+
+        [HttpGet("{name}")]
+        public ActionResult<LdapUser> getUser(string name)
+        {
+            return Ok(_ldapManagerRepository.GetUserSamAccountName(name));
+        }
+
+        [HttpGet("groups")]
+        public ActionResult<IEnumerable<LdapGroup>> getGroups()
+        {
+            return Ok(_ldapManagerRepository.GetLdapGroups());
+        }
+
     }
 }
