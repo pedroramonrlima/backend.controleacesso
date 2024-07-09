@@ -7,7 +7,7 @@ namespace ControleAcesso.Domain.Interfaces.Services
         Task<AcesseRequestDetail> ApproveManagerAsync(AcesseRequestDetail acesseRequestDetail, int idManager);
 
         Task<AcesseRequestDetail> PriorApprovalAsync(AcesseRequestDetail acesse, int idEmployee);
-        Task<IEnumerable<AcesseRequestDetail>> GetPedentManager(int idManager);
-        Task<IEnumerable<AcesseRequestDetail>> GetPedentEspecialist(int employeeId);
+        Task<IEnumerable<AcesseRequestDetail>> GetPendingManagerAsync(int idManager);
+        Task<IEnumerable<AcesseRequestDetail>> GetPendingEspecialistAsync(int employeeId);
     }
 }

@@ -144,19 +144,5 @@ namespace ControleAcesso.Application.Services
                 _errors[key].Add(message);
             }
         }
-
-        public async Task<IEnumerable<AcesseRequestDetail>> GetPedentManager(int idManager)
-        {
-            IEnumerable<AcesseRequestDetail> requestsDetail = await _acesseDetailRepository.GetAllAsync(ard =>
-            ard.StatusRequestId == 1 &&
-            ard.ManagerApproval.EmployeeId == idManager);
-            return requestsDetail;
-
-        }
-
-        public async Task<IEnumerable<AcesseRequestDetail>> GetPedentEspecialist(int employeeId)
-        {
-            return await _acesseDetailRepository.GetPendingEspecialistAsync(employeeId);
-        }
     }
 }
