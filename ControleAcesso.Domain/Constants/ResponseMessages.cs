@@ -23,11 +23,10 @@
 
         //Validation AcesseRequest
         public const string AcesseRequestIsExists = "Já existe uma Requisição de acesso sobre o numero {0} para o item ({1}) com o status {2}";
-
-        //Validation Service Acesse Request
-
         public const string DepartamentNotManager = "O Departamento ({0}) que o funcionario está alocado está sem gestor associado";
 
+        //Validation AcesseRequestDetail
+        public const string ApprovalErrorMessage = "Não é possível aprovar esta solicitação porque ela já está em status {0}";
         public static string MaxCharacters(int value)
         {
             return $"O Campo deve conter no maximo {value} caractere";

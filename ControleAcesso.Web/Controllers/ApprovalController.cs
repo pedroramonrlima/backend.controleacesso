@@ -32,7 +32,7 @@ namespace ControleAcesso.Web.Controllers
         {
             try
             {
-                return Ok(await _approvalRequestDetailService.ApproveManager(acesseRequest.ToEntity(), 1));
+                return Ok(await _approvalRequestDetailService.ApproveManagerAsync(acesseRequest.ToEntity(), 1));
             }
             catch (DomainException ex)
             {
@@ -45,7 +45,7 @@ namespace ControleAcesso.Web.Controllers
         {
             try
             {
-                return Ok(await _approvalRequestDetailService.PriorApproval(acesseRequest.ToEntity(), 3));
+                return Ok(await _approvalRequestDetailService.PriorApprovalAsync(acesseRequest.ToEntity(), 3));
             }
             catch (DomainException ex)
             {
@@ -66,7 +66,7 @@ namespace ControleAcesso.Web.Controllers
             var errorResponse = new
             {
                 Status = code,
-                Title = ResponseMessages.NotProcessingRequest,
+                Title = ex.Message,
                 Errors = errorDetails
             };
 
