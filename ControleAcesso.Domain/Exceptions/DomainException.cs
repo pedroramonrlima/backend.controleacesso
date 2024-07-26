@@ -3,6 +3,7 @@
     public class DomainException : Exception
     {
         public List<string> Errors { get; private set; } = new List<string>();
+        public List<ValidationError> Errors2 { get; } = new List<ValidationError>();
         public Dictionary<string, List<string>> Properties { get; private set; } = new Dictionary<string, List<string>>();
         public DomainException() { }
 
@@ -26,5 +27,17 @@
         {
             Properties = errors ?? throw new ArgumentNullException(nameof(errors));
         }
+
+        public DomainException(string message, List<ValidationError> erros) : base(message) 
+        { 
+            Errors2 = erros ?? new List<ValidationError> ();
+        }
     }
+
+    public class ValidationError
+    { 
+        public string Key { get; set; }
+        public string Message {get; set;}
+    }
+
 }

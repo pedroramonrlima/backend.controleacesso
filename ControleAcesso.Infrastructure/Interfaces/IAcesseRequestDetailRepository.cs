@@ -10,5 +10,7 @@ namespace ControleAcesso.Infrastructure.Interfaces
         Task<IEnumerable<AcesseRequestDetail>> GetPendingEspecialistAsync(int employee);
         Task<AcesseRequestDetail?> GetPendingEspecialistByIdAsync(int id, int employeeId);
         Task<AcesseRequestDetail?> GetPendingEspecialistByIdAsync(int id);
+        Task<IEnumerable<AcesseRequestDetail>> GetRequestByEmployeeIdAsync(int employeeId);
+        Task<IEnumerable<AcesseRequestDetail>> GetPendingManagerAsync(int employeeId);
     }
 }

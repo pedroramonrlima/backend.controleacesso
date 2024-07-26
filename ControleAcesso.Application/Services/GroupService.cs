@@ -109,6 +109,9 @@ namespace ControleAcesso.Application.Services
             return false;
         }
 
-       
+        public async Task<bool> IsGroupApproval(int groupId)
+        {
+            return await _groupRepository.ValidIsGroupAproval(groupId);
+        }
     }
 }

@@ -31,6 +31,11 @@ namespace ControleAcesso.Application.Services
             _ldapManagerRepository.AddUserToGroup(user,group);
         }
 
+        public string GetGroupAdminApi()
+        {
+            return _ldapManagerRepository.GroupAdmin;
+        }
+
         public IEnumerable<LdapGroup> GetLdapGroups()
         {
             return _ldapManagerRepository.GetLdapGroups();
@@ -43,7 +48,7 @@ namespace ControleAcesso.Application.Services
 
         public LdapUser GetUserBySamAccountName(string samAccountName)
         {
-            throw new NotImplementedException();
+            return _ldapManagerRepository.GetUserSamAccountName(samAccountName);
         }
 
         public bool SamAccountNameExists(string samAccountName)
@@ -61,9 +66,14 @@ namespace ControleAcesso.Application.Services
             throw new NotImplementedException();
         }
 
-        public bool ValidUserPassowrd(string dn, string password)
+        public bool ValidUserPassowrd(string login, string password)
         {
-            throw new NotImplementedException();
+            LdapUser user = _ldapManagerRepository.GetUserSamAccountName(login);
+            if(user != null)
+            {
+                return _ldapManagerRepository.ValidUserPassowrd(user.DN, password);
+            }
+            return false;
         }
     }
 }

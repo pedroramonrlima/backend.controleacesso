@@ -25,5 +25,18 @@ namespace ControleAcesso.Infrastructure.Repositories
         {
             throw new NotImplementedException();
         }
+
+        public async Task<bool> ValidIsGroupAproval(int groupId)
+        {
+            var group = await _context.Set<PriorApproval>().Where(pa => pa.GroupApprovalId == groupId).ToListAsync();
+
+            if (group != null) 
+            {
+                return false;
+            }else
+            {
+                return true;
+            }
+        }
     }
 }

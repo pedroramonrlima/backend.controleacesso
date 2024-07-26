@@ -26,11 +26,15 @@ namespace ControleAcesso.Domain.Entities
         public DateTime ContractDate { get; set; }
 
         public int OfficeId { get; set; }
+        public int TitleId { get; set; }
         public int DepartmentId { get; set; }
         public int EmployeeStatusId { get; set; }
 
         [ForeignKey("OfficeId")]
         public virtual Company Office { get; set; }
+
+        [ForeignKey("TitleId")]
+        public virtual Title Title { get; set; }
 
         [ForeignKey("DepartmentId")]
         public virtual Department Department { get; set; }

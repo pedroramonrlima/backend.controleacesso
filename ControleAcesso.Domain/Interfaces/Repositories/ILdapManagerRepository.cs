@@ -4,6 +4,7 @@ namespace ControleAcesso.Domain.Interfaces.Repositories
 {
     public interface ILdapManagerRepository
     {
+        string GroupAdmin { get; }
         IEnumerable<LdapUser> GetLDAPUsers();
         LdapUser GetUserSamAccountName(string samAccountName);
         void AddUser(LdapUser user);

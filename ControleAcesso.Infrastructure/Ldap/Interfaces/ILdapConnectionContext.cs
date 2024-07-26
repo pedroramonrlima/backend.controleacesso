@@ -9,5 +9,6 @@ namespace ControleAcesso.Infrastructure.Ldap.Interfaces
         LdapConnection GetLdapConnection(string userDN, string password);
 
         string BaseDN { get; }
+        string GroupAdmin { get; }
     }
 }

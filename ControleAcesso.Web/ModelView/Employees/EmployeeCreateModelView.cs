@@ -40,6 +40,9 @@ namespace ControleAcesso.Web.ModelView.Employees
         [Required(ErrorMessage = ResponseMessages.RequiredField)]
         public int EmployeeStatusId { get; set; }
 
+        [Required(ErrorMessage = ResponseMessages.RequiredField)]
+        public int TitleId { get; set; }
+
         public Employee ToEntity()
         {
             return new Employee
@@ -51,7 +54,8 @@ namespace ControleAcesso.Web.ModelView.Employees
                 ContractDate = this.ContractDate,
                 OfficeId = this.OfficeId,
                 DepartmentId = this.DepartmentId,
-                EmployeeStatusId = this.EmployeeStatusId
+                EmployeeStatusId = this.EmployeeStatusId,
+                TitleId = this.TitleId,
             };
         }
 

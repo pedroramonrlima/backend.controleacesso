@@ -8,5 +8,7 @@ namespace ControleAcesso.Domain.Interfaces.Repositories
         Task<IEnumerable<GroupAd>> GetAllGroupAdAsync();
 
         Task<GroupAd?> GetEmployeeAsync(Expression<Func<GroupAd, bool>> predicate);
+
+        Task<bool> ValidIsGroupAproval(int groupId);
     }
 }

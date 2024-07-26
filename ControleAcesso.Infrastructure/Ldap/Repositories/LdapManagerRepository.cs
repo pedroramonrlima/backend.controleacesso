@@ -13,10 +13,12 @@ namespace ControleAcesso.Infrastructure.Ldap.Repositories
         private readonly ILdapConnectionContext _ldapConnectionContext;
         private const string UsersContainer = "cn=Users";
 
+
         public LdapManagerRepository(ILdapConnectionContext ldapConnectionContext)
         {
             _ldapConnectionContext = ldapConnectionContext;
         }
+        public string GroupAdmin => _ldapConnectionContext.GroupAdmin;
 
         public void AddUser(LdapUser user)
         {
@@ -160,9 +162,16 @@ namespace ControleAcesso.Infrastructure.Ldap.Repositories
         public bool ValidUserPassowrd(string dn, string password)
         {
             bool isValid = false;
-            using (var ldapConnection = _ldapConnectionContext.GetLdapConnection(dn, password))
+            try
             {
-                isValid = true;
+                using (var ldapConnection = _ldapConnectionContext.GetLdapConnection(dn, password))
+                {
+                    isValid = true;
+                }
+            }
+            catch (Exception)
+            {
+
             }
             return isValid;
         }
@@ -238,7 +247,8 @@ namespace ControleAcesso.Infrastructure.Ldap.Repositories
                 Pager = GetAttributeValue(entry, "pager"),
                 Department = GetAttributeValue(entry, "Department"),
                 Initials = GetAttributeValue(entry, "initials"),
-                UserPrincipalName = GetAttributeValue(entry, "UserPrincipalName")
+                UserPrincipalName = GetAttributeValue(entry, "UserPrincipalName"),
+                MemberOf = GetAttributeValue(entry, "MemberOf")
             };
         }
 

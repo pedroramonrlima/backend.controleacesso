@@ -41,5 +41,7 @@ namespace ControleAcesso.Infrastructure.Ldap.Connection
 
         }
         public string BaseDN => _ldapSettings.BaseDN;
+
+        public string GroupAdmin => _ldapSettings.GroupAdmin;
     }
 }

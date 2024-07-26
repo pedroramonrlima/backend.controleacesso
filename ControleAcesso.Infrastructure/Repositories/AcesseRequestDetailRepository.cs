@@ -114,9 +114,11 @@ namespace ControleAcesso.Infrastructure.Repositories
         public async Task<IEnumerable<AcesseRequestDetail>> GetPendingEspecialistAsync(int employee)
         {
             return await _context.Set<AcesseRequestDetail>()
+                .Include(ard => ard.Status)
                 .Include(ard => ard.AcesseRequest)
                     .ThenInclude(ar => ar.GroupAd)
                         .ThenInclude(ga => ga.GroupApprovals)
+                .Include(ar => ar.AcesseRequest.Employee)
                 .Where(ard => ard.StatusRequestId == 2 &&
                               ard.AcesseRequest.HasPriorApproval == true &&
                               ard.AcesseRequest.GroupAd.GroupApprovals.Any(ga => ga.EmployeeId == employee))
@@ -150,6 +152,34 @@ namespace ControleAcesso.Infrastructure.Repositories
                               ard.Id == id &&
                               ard.AcesseRequest.HasPriorApproval == true)
                 .FirstOrDefaultAsync();
+        }
+
+        public async Task<IEnumerable<AcesseRequestDetail>> GetRequestByEmployeeIdAsync(int employeeId)
+        {
+           return await _context.Set<AcesseRequestDetail>()
+                .Include(ard => ard.RequesterEmployee)
+                .Include(ard => ard.Status)
+                .Include(ard => ard.AcesseRequest)
+                    .ThenInclude(ard => ard.GroupAd)
+                .Include(ard => ard.AcesseRequest.Employee)
+                .Where(ar => ar.RequesterEmployeeId == employeeId)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<AcesseRequestDetail>> GetPendingManagerAsync(int employeeId)
+        {
+            return await _context.Set<AcesseRequestDetail>()
+                .AsNoTracking()
+                .Include(ard => ard.Status)
+                .Include(ard => ard.AcesseRequest)
+                    .ThenInclude(ar => ar.GroupAd)
+                        .ThenInclude(ga => ga.GroupApprovals)
+                .Include(ars => ars.AcesseRequest.Employee)
+                .Where(ard => 
+                    ard.ManagerApproval.EmployeeId == employeeId &&
+                    ard.StatusRequestId == (int)EStatusRequest.AguardandoAprovacaManager
+                    )
+                .ToListAsync();
         }
     }
 }

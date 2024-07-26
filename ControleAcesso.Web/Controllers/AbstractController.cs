@@ -23,7 +23,7 @@ namespace ControleAcesso.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<T>>> GetAll()
+        public virtual async Task<ActionResult<IEnumerable<T>>> GetAll()
         {
             try
             {

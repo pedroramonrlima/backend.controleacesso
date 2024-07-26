@@ -10,8 +10,8 @@ namespace ControleAcesso.Domain.Interfaces.Services
 {
     public interface IGroupService : IGenericService<GroupAd>
     {
-         GroupAd Add(GroupAd entity);
-
-         Task<IEnumerable<GroupAd>> GetAllAsync(NavigationLevel navigationLevel = NavigationLevel.None);
+        GroupAd Add(GroupAd entity);
+        Task<IEnumerable<GroupAd>> GetAllAsync(NavigationLevel navigationLevel = NavigationLevel.None);
+        Task<bool> IsGroupApproval(int groupId);
     }
 }

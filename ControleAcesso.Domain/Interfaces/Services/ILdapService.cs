@@ -12,7 +12,8 @@ namespace ControleAcesso.Domain.Interfaces.Services
         void UpdateUserPassword(string samAccountName, string newPassword);
         void UpdateUser(LdapUser user);
         void AddUserToGroup(string dnUser, string dnGroup);
-        bool ValidUserPassowrd(string dn, string password);
+        bool ValidUserPassowrd(string login, string password);
         IEnumerable<LdapGroup> GetLdapGroups();
+        string GetGroupAdminApi();
     }
 }

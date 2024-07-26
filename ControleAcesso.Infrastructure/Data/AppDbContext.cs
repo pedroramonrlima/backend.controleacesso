@@ -10,6 +10,7 @@ namespace ControleAcesso.Infrastructure.Data
         }
         public DbSet<Employee> Employees { get; set; }
         public DbSet<Company> Company { get; set; }
+        public DbSet<Title> Titles { get; set; }
         public DbSet<Department> Departments { get; set; }
         public DbSet<Manager> Managers { get; set; }
         public DbSet<EmployeeStatus> EmployeeStatuses { get; set; }
@@ -47,6 +48,10 @@ namespace ControleAcesso.Infrastructure.Data
                       .WithMany(/*o => o.Employees*/)
                       .HasForeignKey(e => e.OfficeId);
 
+                entity.HasOne(e => e.Title)
+                      .WithMany()
+                      .HasForeignKey(e => e.TitleId);
+
                 entity.HasOne(e => e.Department)
                       .WithMany(d => d.Employees)
                       .HasForeignKey(e => e.DepartmentId);
@@ -59,6 +64,16 @@ namespace ControleAcesso.Infrastructure.Data
             modelBuilder.Entity<Company>(entity =>
             {
                 entity.ToTable("company");
+
+                entity.HasKey(o => o.Id);
+
+                entity.Property(o => o.Name)
+                      .HasMaxLength(45);
+            });
+
+            modelBuilder.Entity<Title>(entity =>
+            {
+                entity.ToTable("title");
 
                 entity.HasKey(o => o.Id);
 

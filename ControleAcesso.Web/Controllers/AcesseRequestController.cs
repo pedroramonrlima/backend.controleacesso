@@ -2,27 +2,47 @@
 using ControleAcesso.Domain.Entities;
 using ControleAcesso.Domain.Exceptions;
 using ControleAcesso.Domain.Interfaces.Services;
+using ControleAcesso.Web.Extensions;
 using ControleAcesso.Web.ModelView.Requests;
 using ControleAcesso.Web.Response;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ControleAcesso.Web.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class AcesseRequestController : AbstractController<AcesseRequest, AcesseRequestCreateModelView, AcesseRequestUpdateModelView>
+    public class AcesseRequestController : ControllerBase
     {
         private readonly IAcesseRequestService _acesseRequestService;
-        public AcesseRequestController(IGenericService<AcesseRequest> service, IAcesseRequestService acesseRequestService) : base(service)
+        public AcesseRequestController(IGenericService<AcesseRequest> service, IAcesseRequestService acesseRequestService)
         {
             _acesseRequestService = acesseRequestService;
         }
 
-        public override async Task<ActionResult<AcesseRequest>> Post(AcesseRequestCreateModelView model)
+        [HttpPost]
+        public async Task<ActionResult<AcesseRequest>> Post(AcesseRequestCreateModelView model)
         {
             try
             {
-                return Ok(await _acesseRequestService.AddAsync(model.ToEntity()));
+                var result = await _acesseRequestService.AddAsync(model.GroupAds, User.GetTokenObject().EmployeeId);
+
+                if (result.Success) 
+                { 
+                    return Ok(result.AcesseRequests);
+                }else if (result.PartialSucess)
+                {
+                    return StatusCode(StatusCodes.Status207MultiStatus, new
+                    {
+                        SucessRequests = result.AcesseRequests,
+                        Errors = result.Errors,
+                        ValidationError = result.ValidationErrors
+                    });
+                }else
+                {
+                    return BadRequest(new {Errors = result.Errors, ValidationErrors = result.ValidationErrors, });
+                }
             }
             catch (DomainException ex)
             {
@@ -31,7 +51,21 @@ namespace ControleAcesso.Web.Controllers
 
         }
 
-        protected override ActionResult<AcesseRequest> HandleError(DomainException ex, int code, string erroMenssage)
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<AcesseRequestDetail>>> GetAll()
+        {
+            try
+            {
+                var token = User.GetTokenObject();
+                return Ok(await _acesseRequestService.GetAllAcesseRequestDetailAsync(token.EmployeeId));
+            }
+            catch (DomainException ex)
+            {
+                return BadRequest(ex);
+            }
+        }
+
+        private ActionResult<AcesseRequest> HandleError(DomainException ex, int code, string erroMenssage)
         {
             List<ErrorDetail> errorDetails = ex.Properties.SelectMany(prop =>
                 prop.Value.Select(value => new ErrorDetail
