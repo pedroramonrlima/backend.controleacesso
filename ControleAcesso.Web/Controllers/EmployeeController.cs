@@ -13,5 +13,16 @@ namespace ControleAcesso.Web.Controllers
         public EmployeeController(IGenericService<Employee> service) : base(service)
         {
         }
+
+        [HttpGet("{cpf}")]
+        public async Task<ActionResult<Employee>> GetEmployeeCpf(string cpf)
+        {
+
+            return Ok(new Employee
+            {
+                Name="Ramon",
+                Cpf="111111111111"
+            });
+        }
     }
 }
